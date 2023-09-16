@@ -1,5 +1,7 @@
 #include <iostream>
+#include <string>
 #include "stdio.h"
+#include "direct.h"
 
 #include "tgaimage.h"
 #include "model.h"
@@ -22,8 +24,31 @@ Vec3f world2screen(Vec3f v)
     return Vec3f(int((v.x + 1.) * width / 2.0 + 0.5), int((v.y + 1.0) * height / 2.0 + 0.5), v.z);
 }
 
+string get_parent_path(string &path, const char *_ptr="\\")
+{
+    size_t pos = path.find_last_of(_ptr);
+    if (pos != string::npos)
+    {
+        return path.substr(0, pos);
+    }
+
+    return path;
+}
+
 int main(int argc, char **argv)
 {
+    // exe 路径
+    char _exe_path[250];
+    getcwd(_exe_path, 250);
+
+    // 工程各部分路径
+    string build_path = get_parent_path(string(_exe_path));
+    string pro_path = get_parent_path(build_path);
+    string objs_path = pro_path + "\\objs\\";
+    string output_images_path = pro_path + "\\outpur_images\\";
+
+    // std::cout << "path: = " << objs_path << std::endl;
+
     std::cout << "start running..." << std::endl;
 
     // 设置 tga图片的像素大小 100就是 0-99个像素格子 在ps可查看
@@ -46,7 +71,8 @@ int main(int argc, char **argv)
     */
 
     // 读取obj模型
-    model = new Model("E:/Lsy_Files/script_pro/C_Plus/learn_softrenderer/objs/african_head.obj");
+    string head_model = objs_path + "african_head.obj";
+    model = new Model(head_model.c_str());
 
     /*
     // 绘制obj模型的线框, 只用了三维坐标的xy轴的位置
@@ -105,8 +131,6 @@ int main(int argc, char **argv)
     }
 
     */
-
-
     
     /*
     //  光栅化模型的过程 使用Z缓冲和不使用
@@ -150,9 +174,7 @@ int main(int argc, char **argv)
     }
     
     delete zbuffer;
-
     */
-
     
 
     // 清理内存
@@ -162,7 +184,8 @@ int main(int argc, char **argv)
     image.flip_vertically();
 
     // 把图片数据写入到tgaw文件
-    image.write_tga_file("out.tga");
+    string image_path = output_images_path + "render.tga";
+    image.write_tga_file(image_path.c_str());
 
 
 
