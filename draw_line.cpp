@@ -2,6 +2,7 @@
 
 #include "tgaimage.h"
 #include "draw_line.h"
+#include "geometry.h"
 
 /***
 绘制直线算法，意思就是 在一个 n*m的像素(可理解为网格)中 找到 点A(x0, y0) 连接到 点B(x1, y1) 的最短距离的网格
@@ -238,6 +239,29 @@ void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color)
         }
         else
         {
+            image.set(x, y, color);
+        }
+    }
+}
+
+
+void line(Vec3f p0, Vec3f p1, TGAImage &image, TGAColor color) {
+    bool steep = false;
+    if (std::abs(p0.x-p1.x)<std::abs(p0.y-p1.y)) {
+        std::swap(p0.x, p0.y);
+        std::swap(p1.x, p1.y);
+        steep = true;
+    }
+    if (p0.x>p1.x) {
+        std::swap(p0, p1);
+    }
+
+    for (int x=p0.x; x<=p1.x; x++) {
+        float t = (x-p0.x)/(float)(p1.x-p0.x);
+        int y = p0.y*(1.-t) + p1.y*t+.5;
+        if (steep) {
+            image.set(y, x, color);
+        } else {
             image.set(x, y, color);
         }
     }
