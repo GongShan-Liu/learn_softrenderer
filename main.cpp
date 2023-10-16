@@ -23,10 +23,7 @@ const int width = 800;
 const int height = 800;
 const int depth  = 255;
 
-Vec3f world2screen(Vec3f v)
-{
-    return Vec3f(int((v.x + 1.) * width / 2.0 + 0.5), int((v.y + 1.0) * height / 2.0 + 0.5), v.z);
-}
+
 
 string get_parent_path(string &path, const char *_ptr="\\")
 {
@@ -39,10 +36,13 @@ string get_parent_path(string &path, const char *_ptr="\\")
     return path;
 }
 
+
+// 从3D转2D
 Vec3f m2v(Matrix m) {
     return Vec3f(m[0][0]/m[3][0], m[1][0]/m[3][0], m[2][0]/m[3][0]);
 }
 
+// 从2D转3D
 Matrix v2m(Vec3f v) {
     Matrix m(4, 1);
     m[0][0] = v.x;
@@ -52,6 +52,27 @@ Matrix v2m(Vec3f v) {
     return m;
 }
 
+// 3D坐标转为屏幕2D坐标
+Vec3f world2screen(Vec3f v)
+{
+    return Vec3f(int((v.x + 1.) * width / 2.0 + 0.5), int((v.y + 1.0) * height / 2.0 + 0.5), v.z);
+}
+
+/*
+// 视口就是窗口中用来显示图形的一块矩形区域，它可以和窗口等大，也可以比窗口大或者小
+    
+    视口矩阵就是 把2D屏幕转为3D屏幕, 最终把图形显示在屏幕3D立方体的区域
+        矩阵
+            | w/2  0   0  x+w/2 |
+            |  0  h/2  0  y+h/2 |
+            |  0   0  d/2  d/2  |
+            |  0   0   0    1   |
+
+    为什么屏幕不是2D区域而是3D立体区域？
+        因为使用Z缓存区进行深度的计算, 这里的d(depth)就是Z的缓存区的分辨率, 
+            depth设置为255，因为转储Z缓冲区的黑白图像以进行调试很简单。
+
+*/
 Matrix viewport(int x, int y, int w, int h) {
     Matrix m = Matrix::identity(4);
     m[0][3] = x+w/2.f;
@@ -194,8 +215,8 @@ int main(int argc, char **argv)
 
     */
 
+    
     /*
-
     // 重心坐标法
     // 6. 绘制模型的三角面, 颜色为任意色
     for (int i = 0; i < model->nfaces(); i++)
@@ -204,15 +225,25 @@ int main(int argc, char **argv)
         Vec3f screen_coords[3];
         for (int j = 0; j < 3; j++)
         {
-            // 获取模型面的世界坐标
+            // 获取模型面的世界坐标 (坐标都是在-1.0 到 1.0 之间)
             Vec3f world_coords = model->vert(face[j]);
-            // 从世界坐标转换到屏幕坐标 (简单地去掉z轴)
+            
+            // 从世界坐标转换到屏幕2D坐标 (简单地去掉z轴)
+            // 屏幕 (x, y) = ((3D位置.x + 1.0) * 宽 / 2 , (3D位置.y + 1.0) * 高 / 2)
+            //  为什么宽和高要缩小一半？
+            //      因为要把3D位置的x,y是(-1.0到1.0)) 的最大距离是2, 而2D屏幕是从0开始最大值,所以转换到屏幕要缩小一半
+            //  为什么位置要 + 1.0 ？
+            //      因为绘制的初始地方在 屏幕2D的(0, 0)开始绘制 所以可以理解为 3D模型要整体位移最大距离的一半(因为屏幕缩小了一半, 相应位移最大距离的一半即可)
+
             screen_coords[j] = Vec3f((world_coords.x + 1.0) * width / 2.0, (world_coords.y + 1.0) * height / 2.0, 1.0);
         }
+        // 任意颜色
         triangle(screen_coords, image, TGAColor(rand() % 255, rand() % 255, rand() % 255, 255));
-    }
 
+
+    }
     */
+    
     
     /*
     //  7. 光栅化模型的过程 使用Z缓冲和不使用
@@ -259,40 +290,57 @@ int main(int argc, char **argv)
     */
 
 
-     Matrix VP = viewport(width/4, width/4, width/2, height/2);
+    // 加载立方体模型
+    string cube_model_path = objs_path + "cube.obj";
+    Model *cube_model = new Model(cube_model_path.c_str());
 
-    { // draw the axes
-        Vec3f x(1.f, 0.f, 0.f), y(0.f, 1.f, 0.f), o(0.f, 0.f, 0.f);
-        o = m2v(VP*v2m(o));
-        x = m2v(VP*v2m(x));
-        y = m2v(VP*v2m(y));
+    // 视口矩阵
+    Matrix VP = viewport(width/200.0, width/200.0, width, height);
+
+    { // 绘制2D的中心坐标
+        Vec3f x(1.0f, 0.f, 0.f), y(0.0f, 1.0f, 0.f), o(0.f, 0.f, 0.f);
+
+
+        o = m2v(VP * v2m(o));
+        x = m2v(VP * v2m(x));
+        y = m2v(VP * v2m(y));
+
+
         line(o, x, image, red);
         line(o, y, image, green);
     }
 
-    for (int i=0; i<model->nfaces(); i++) {
-        std::vector<int> face = model->face(i);
-        for (int j=0; j<(int)face.size(); j++) {
-            Vec3f wp0 = model->vert(face[j]);
-            Vec3f wp1 = model->vert(face[(j+1)%face.size()]);
 
-            { // draw the original model
-                Vec3f sp0 = m2v(VP*v2m(wp0));
-                Vec3f sp1 = m2v(VP*v2m(wp1));
-                line(sp0, sp1, image, white);
-            }
-            { // draw the deformed model
-                Matrix T = zoom(1.5);
-//                  Matrix T = Matrix::identity(4);
-//                  T[0][1] = 0.333;
-//                Matrix T = translation(Vec3f(.33, .5, 0))*rotation_z(cos(10.*M_PI/180.), sin(10.*M_PI/180.));
-                Vec3f sp0 = m2v(VP*T*v2m(wp0));
-                Vec3f sp1 = m2v(VP*T*v2m(wp1));
-                line(sp0, sp1, image, yellow);
-            }
-        }
-        break;
-    }
+    // for (int i=0; i < cube_model->nfaces(); i++) 
+    // {
+    //     std::vector<int> face = cube_model->face(i);
+
+    //     for (int j=0; j<(int)face.size(); j++) 
+    //     {
+    //         Vec3f wp0 = cube_model->vert(face[j]);
+    //         Vec3f wp1 = cube_model->vert(face[(j+1) % face.size()]);
+
+    //         { // 绘制原始模型(作为参照物)
+    //             Vec3f sp0 = m2v(VP * v2m(wp0));
+    //             Vec3f sp1 = m2v(VP * v2m(wp1));
+    //             line(sp0, sp1, image, white);
+    //         }
+
+
+    //         // { // 绘制变换后的模型
+    //         //     Matrix T = zoom(1.5);
+    //         //     // Matrix T = Matrix::identity(4);
+    //         //     // T[0][1] = 0.333;
+    //         //     // Matrix T = translation(Vec3f(.33, .5, 0))*rotation_z(cos(10.*M_PI/180.), sin(10.*M_PI/180.));
+    //         //     Vec3f sp0 = m2v(VP * T * v2m(wp0));
+    //         //     Vec3f sp1 = m2v(VP * T * v2m(wp1));
+    //         //     line(sp0, sp1, image, yellow);
+    //         // }
+    //     }
+    //     break;
+    // }
+
+    delete cube_model;
 
     
 

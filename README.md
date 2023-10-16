@@ -1,7 +1,7 @@
 # learn_softrenderer
 
 ## 说明
-在windows使用VSC(编译器vs2019)编写cmake、c+ 的软渲染器代码(主要通过学习tinyrenderer代码)，目的是巩固图形的基础知识
+使用VSC编写cmake、c+ 的软渲染器代码(主要通过学习tinyrenderer代码)，目的是巩固图形的基础知识
 
 - 视频教程
   
