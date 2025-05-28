@@ -1,5 +1,5 @@
 # 设置 cmake最小版本
-cmake_minimum_required(VERSION 3.27)
+# cmake_minimum_required(VERSION 3.27)
 
 # 设置输出项目名称
 project(learn_softrenderer)

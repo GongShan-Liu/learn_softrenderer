@@ -1,8 +1,8 @@
 #include "stdio.h"
-
-#include "tgaimage.h"
+#include "tga_image.h"
+#include "matrix.h"
+#include "draw_point.h"
 #include "draw_line.h"
-#include "geometry.h"
 
 /***
 绘制直线算法，意思就是 在一个 n*m的像素(可理解为网格)中 找到 点A(x0, y0) 连接到 点B(x1, y1) 的最短距离的网格
@@ -20,7 +20,7 @@
         该方法除了性能消耗较大同时也取决于 t的每次步长常数的选择，如果取它为0.1，那么如果点A(13, 20) 点B(80, 40)就出现连接不上的点
 ***/
 
-// void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color)
+// void draw_line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color)
 // {
 //     for (float t = 0; t < 1.0; t += 0.01)
 //     {
@@ -31,7 +31,7 @@
 //         printf(" x=%i", x);
 //         printf(" y=%i", y);
 
-//         image.set(x, y, color);
+//        draw_point(image, x, y, color);
 
 //         printf("\n");
 //     }
@@ -43,7 +43,7 @@
             2. 如果|x1 - y1| >= |x0 - y0|, 那么就会出现连接不上的点，正常是所有点都连接成直线
 ***/
 
-// void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color)
+// void draw_line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color)
 // {
 //     for (int x = x0; x <= x1; x++)
 //     {
@@ -56,7 +56,7 @@
 //         printf(" x=%i", x);
 //         printf(" y=%i", y);
 
-//         image.set(x, y, color);
+//        draw_point(image, x, y, color);
 
 //         printf("\n");
 
@@ -68,7 +68,7 @@
             问题：如果绘制大量的line，那么该方法性能在 计算t和y值时，就会消耗较大 (因为存在浮点乘除的迭代计算)，所以可进一步优化
 ***/
 
-// void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color)
+// void draw_line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color)
 // {
 //     bool steep = false;
 
@@ -94,11 +94,11 @@
 //         if (steep)
 //         {
 //             // 有转置，那么就反转置
-//             image.set(y, x, color);
+//            draw_point(image, y, x, color);
 //         }
 //         else
 //         {
-//             image.set(x, y, color);
+//            draw_point(image, x, y, color);
 //         }
 //     }
 // }
@@ -107,7 +107,7 @@
         好处是把计算t与y的浮点乘除优化了, 那么还可以进一步的优化
 ***/
 
-// void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color)
+// void draw_line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color)
 // {
 //     bool steep = false;
 //     if (std::abs(x0 - x1) < std::abs(y0 - y1))
@@ -136,11 +136,11 @@
 //     {
 //         if (steep)
 //         {
-//             image.set(y, x, color);
+//            draw_point(image, y, x, color);
 //         }
 //         else
 //         {
-//             image.set(x, y, color);
+//            draw_point(image, x, y, color);
 //         }
 
 //         // 当累积误差大于0.5时 (即大于1个像素)，y 就增(减) 1，累积误差又退回原始累积
@@ -157,7 +157,7 @@
  *      目前可认为较良好的绘制直线的方案，也可称为 Bresenham直线算法
  ***/
 
-void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color)
+void draw_line(int x0, int y0, int x1, int y1, TGA_Image &image, TGA_Color color)
 {
     bool steep = false;
     if (std::abs(x0 - x1) < std::abs(y0 - y1))
@@ -185,11 +185,11 @@ void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color)
     // {
     //     if (steep)
     //     {
-    //         image.set(y, x, color);
+    //        draw_point(image, y, x, color);
     //     }
     //     else
     //     {
-    //         image.set(x, y, color);
+    //        draw_point(image, x, y, color);
     //     }
 
     //     // 当累积误差 (以2倍dy的步长进行叠加) 大于dx时，那么y就增(减)1, 并且 误差累积通过减去2倍的dx，退回到低于dx的累积误差
@@ -206,7 +206,7 @@ void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color)
     // {
     //     for (int x = x0; x <= x1; ++x)
     //     {
-    //         image.set(y, x, color);
+    //        draw_point(image, y, x, color);
     //         error += derror;
     //         if (error > dx)
     //         {
@@ -219,7 +219,7 @@ void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color)
     // {
     //     for (int x = x0; x <= x1; ++x)
     //     {
-    //         image.set(x, y, color);
+    //        draw_point(image, x, y, color);
     //         error += derror;
     //         if (error > dx)
     //         {
@@ -235,17 +235,17 @@ void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color)
         int y = y0 * (1. - t) + y1 * t;
         if (steep)
         {
-            image.set(y, x, color);
+           draw_point(image, y, x, color);
         }
         else
         {
-            image.set(x, y, color);
+           draw_point(image, x, y, color);
         }
     }
 }
 
 
-void line(Vec3f p0, Vec3f p1, TGAImage &image, TGAColor color) {
+void draw_line(Vec3f p0, Vec3f p1, TGA_Image &image, TGA_Color color) {
     bool steep = false;
     if (std::abs(p0.x-p1.x)<std::abs(p0.y-p1.y)) {
         std::swap(p0.x, p0.y);
@@ -260,9 +260,9 @@ void line(Vec3f p0, Vec3f p1, TGAImage &image, TGAColor color) {
         float t = (x-p0.x)/(float)(p1.x-p0.x);
         int y = p0.y*(1.-t) + p1.y*t+.5;
         if (steep) {
-            image.set(y, x, color);
+           draw_point(image, y, x, color);
         } else {
-            image.set(x, y, color);
+           draw_point(image, x, y, color);
         }
     }
 }

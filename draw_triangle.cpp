@@ -1,16 +1,17 @@
 #include <iostream>
+#include <vector>
 #include "stdio.h"
-
-#include "draw_triangle.h"
+#include "matrix.h"
 #include "draw_line.h"
+#include "draw_triangle.h"
 
 using namespace std;
 
-const TGAColor red = TGAColor(255, 0, 0, 255);
-const TGAColor green = TGAColor(0, 255, 0, 255);
+const TGA_Color red = TGA_Color(255, 0, 0, 255);
+const TGA_Color green = TGA_Color(0, 255, 0, 255);
 
 // 传统线扫描法 绘制三角形
-void triangle(Vec2i t0, Vec2i t1, Vec2i t2, TGAImage &image, TGAColor color)
+void triangle(Vec2i t0, Vec2i t1, Vec2i t2, TGA_Image &image, TGA_Color color)
 {
     // 按y的顺序重新排序 t2 > t1 > t0
     if (t0.y > t1.y)
@@ -155,7 +156,7 @@ Vec3f barycentric(Vec3f A, Vec3f B, Vec3f C, Vec3f P)
 }
 
 // 重心坐标法绘制三角形
-void triangle(Vec3f *pts, TGAImage &image, TGAColor color)
+void triangle(Vec3f *pts, TGA_Image &image, TGA_Color color)
 {
     // 获取三角形的box边界
     Vec2f bboxmin(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
@@ -186,7 +187,7 @@ void triangle(Vec3f *pts, TGAImage &image, TGAColor color)
 }
 
 // 加入z缓冲区绘制三角形
-void triangle(int &width, Vec3f *pts, float *zbuffer, TGAImage &image, TGAColor color)
+void triangle(int &width, Vec3f *pts, float *zbuffer, TGA_Image &image, TGA_Color color)
 {
     // 获取三角形的box边界
     Vec2f bboxmin(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
@@ -233,4 +234,37 @@ void triangle(int &width, Vec3f *pts, float *zbuffer, TGAImage &image, TGAColor 
     }
 
     
+}
+
+// void triangle(const int width, Model* model, Vec3i t0, Vec3i t1, Vec3i t2, Vec2i uv0, Vec2i uv1, Vec2i uv2, TGA_Image &image, float intensity, int *zbuffer) {
+void triangle(const int width, const int height, Vec3i t0, Vec3i t1, Vec3i t2, float ity0, float ity1, float ity2, TGA_Image &image, int *zbuffer) 
+{
+    if (t0.y==t1.y && t0.y==t2.y) return; // i dont care about degenerate triangles
+    if (t0.y>t1.y) { std::swap(t0, t1); std::swap(ity0, ity1); }
+    if (t0.y>t2.y) { std::swap(t0, t2); std::swap(ity0, ity2); }
+    if (t1.y>t2.y) { std::swap(t1, t2); std::swap(ity1, ity2); }
+
+    int total_height = t2.y-t0.y;
+    for (int i=0; i<total_height; i++) {
+        bool second_half = i>t1.y-t0.y || t1.y==t0.y;
+        int segment_height = second_half ? t2.y-t1.y : t1.y-t0.y;
+        float alpha = (float)i/total_height;
+        float beta  = (float)(i-(second_half ? t1.y-t0.y : 0))/segment_height; // be careful: with above conditions no division by zero here
+        Vec3i A    =               t0  + Vec3f(t2-t0  )*alpha;
+        Vec3i B    = second_half ? t1  + Vec3f(t2-t1  )*beta : t0  + Vec3f(t1-t0  )*beta;
+        float ityA =               ity0 +   (ity2-ity0)*alpha;
+        float ityB = second_half ? ity1 +   (ity2-ity1)*beta : ity0 +   (ity1-ity0)*beta;
+        if (A.x>B.x) { std::swap(A, B); std::swap(ityA, ityB); }
+        for (int j=A.x; j<=B.x; j++) {
+            float phi = B.x==A.x ? 1. : (float)(j-A.x)/(B.x-A.x);
+            Vec3i    P = Vec3f(A) +  Vec3f(B-A)*phi;
+            float ityP =    ityA  + (ityB-ityA)*phi;
+            int idx = P.x+P.y*width;
+            if (P.x>=width||P.y>=height||P.x<0||P.y<0) continue;
+            if (zbuffer[idx]<P.z) {
+                zbuffer[idx] = P.z;
+                image.set(P.x, P.y, TGA_Color(255, 255, 255)*ityP);
+            }
+        }
+    }
 }

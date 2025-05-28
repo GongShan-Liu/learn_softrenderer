@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.py": "python",
         "*.cs": "csharp",
         "atomic": "cpp",
         "bit": "cpp",
@@ -66,6 +67,7 @@
         "xlocmes": "cpp",
         "xlocmon": "cpp",
         "xloctime": "cpp",
-        "xtree": "cpp"
+        "xtree": "cpp",
+        "xmemory0": "cpp"
     }
 }
