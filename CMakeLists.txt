@@ -27,8 +27,20 @@ if(NOT cmake_build_type)
   set(cmake_build_type Release)
 endif()
 
+# 添加子目录
+add_subdirectory(commons)
+add_subdirectory(lessons)
+
 # 把c+文件存储到变量
-file(GLOB sources *.h *.cpp)
+file(GLOB sources *.cpp *.h)
 
 # 添加执行文件
 add_executable(${PROJECT_NAME} ${sources})
+
+# 链接commons库和头文件
+target_link_libraries(${PROJECT_NAME} PRIVATE commons)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/commons)
+
+# 链接lessons库和头文件
+target_link_libraries(${PROJECT_NAME} PRIVATE lessons)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/lessons)

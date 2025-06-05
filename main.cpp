@@ -3,14 +3,14 @@
 #include "stdio.h"
 #include "direct.h"
 
-#include "tga_image.h"
-#include "model.h"
+#include "commons/tga_image.h"
+#include "commons/model.h"
+#include "commons/draw_point.h"
+#include "commons/draw_line.h"
+#include "commons/draw_triangle.h"
 
-#include "draw_point.h"
-#include "draw_line.h"
-#include "draw_triangle.h"
-
-
+#include "lessons/lessons_1.h"
+#include "lessons/lessons_2.h"
 
 using namespace std;
 
@@ -26,9 +26,9 @@ const int height = 800;
 const int depth = 255;
 
 int *zbuffer = NULL;
-Vec3f light_dir = Vec3f(1,-1,1).normalize();
-Vec3f eye(1,1,3);
-Vec3f center(0,0,0);
+Vec3f light_dir = Vec3f(1, -1, 1).normalize();
+Vec3f eye(1, 1, 3);
+Vec3f center(0, 0, 0);
 
 string get_parent_path(string &path, const char *_ptr = "\\")
 {
@@ -56,12 +56,6 @@ Matrix v2m(Vec3f v)
     m[2][0] = v.z;
     m[3][0] = 1.f;
     return m;
-}
-
-// 3D坐标转为屏幕2D坐标
-Vec3f world2screen(Vec3f v)
-{
-    return Vec3f(int((v.x + 1.) * width / 2.0 + 0.5), int((v.y + 1.0) * height / 2.0 + 0.5), v.z);
 }
 
 /*
@@ -135,12 +129,14 @@ Matrix rotation_z(float cosangle, float sinangle)
     return R;
 }
 
-Matrix lookat(Vec3f eye, Vec3f center, Vec3f up) {
-    Vec3f z = (eye-center).normalize();
-    Vec3f x = (up^z).normalize();
-    Vec3f y = (z^x).normalize();
+Matrix lookat(Vec3f eye, Vec3f center, Vec3f up)
+{
+    Vec3f z = (eye - center).normalize();
+    Vec3f x = (up ^ z).normalize();
+    Vec3f y = (z ^ x).normalize();
     Matrix res = Matrix::identity(4);
-    for (int i=0; i<3; i++) {
+    for (int i = 0; i < 3; i++)
+    {
         res[0][i] = x[i];
         res[1][i] = y[i];
         res[2][i] = z[i];
@@ -150,7 +146,8 @@ Matrix lookat(Vec3f eye, Vec3f center, Vec3f up) {
 }
 
 int main(int argc, char **argv)
-{
+{ 
+    std::cout << "hello world" << std::endl;
     // exe文件路径
     // std::cout << argv[0] << std::endl;
 
@@ -185,123 +182,42 @@ int main(int argc, char **argv)
     /*
     // 1. 绘制像素点
     // 设置 像素位置 中心的颜色为红色
-    draw_point(image, width / 2, height / 2, red);
+    // lessons_1(image, width / 2, height / 2);
     */
 
-    /*
+    
     // 2. 绘制直线
-    draw_line(13, 20, 80, 40, image, white);
-    draw_line(20, 13, 40, 80, image, red);
-    draw_line(80, 40, 13, 20, image, red);
-    */
+    lessons_2(image);
+    
 
     // 读取obj模型
     string head_model = objs_path + "african_head.obj";
     model = new Model(head_model.c_str());
 
-    /* 
+    /*
     // 3. 绘制obj模型的线框, 只用了三维坐标的xy轴的位置
-    for (int i = 0; i < model->nfaces(); i++)
-    {
-        std::vector<int> face = model->face(i);
-        for (int j = 0; j < 3; j++)
-        {
-            Vec3f v0 = model->vert(face[j]);
-            Vec3f v1 = model->vert(face[(j + 1) % 3]);
-            int x0 = (v0.x + 1.0) * width / 2.0;
-            int y0 = (v0.y + 1.0) * height / 2.0;
-            int x1 = (v1.x + 1.0) * width / 2.0;
-            int y1 = (v1.y + 1.0) * height / 2.0;
-            draw_line(x0, y0, x1, y1, image, white);
-        }
-    }
+    lessons_3(model, image, width, height);
     */
 
     /*
     // 4. 传统线扫描法绘制三角形
-    Vec2i t0[3] = {Vec2i(10, 70),   Vec2i(50, 160),  Vec2i(70, 80)};
-    Vec2i t1[3] = {Vec2i(180, 50),  Vec2i(150, 1),   Vec2i(70, 180)};
-    Vec2i t2[3] = {Vec2i(180, 150), Vec2i(120, 160), Vec2i(130, 180)};
-    triangle(t0[0], t0[1], t0[2], image, red);
-    triangle(t1[0], t1[1], t1[2], image, white);
-    triangle(t2[0], t2[1], t2[2], image, red);
+    lessons_4(image);
     */
 
     /*
     // 5. 重心坐标法绘制三角形
-    Vec3f pts[3] = {Vec3f(10, 10, 1), Vec3f(100, 30, 1), Vec3f(190, 160, 1)};
-    triangle(pts, image, red);
+    lessons_5(image);
     */
 
     /*
     // 重心坐标法
     // 6. 绘制模型的三角面, 颜色为任意色
-    for (int i = 0; i < model->nfaces(); i++)
-    {
-        std::vector<int> face = model->face(i);
-        Vec3f screen_coords[3];
-        for (int j = 0; j < 3; j++)
-        {
-            // 获取模型面的世界坐标 (坐标都是在-1.0 到 1.0 之间)
-            Vec3f world_coords = model->vert(face[j]);
-
-            // 从世界坐标转换到屏幕2D坐标 (简单地去掉z轴)
-            // 屏幕 (x, y) = ((3D位置.x + 1.0) * 宽 / 2 , (3D位置.y + 1.0) * 高 / 2)
-            //  为什么宽和高要缩小一半？
-            //      因为要把3D位置的x,y是(-1.0到1.0)) 的最大距离是2, 而2D屏幕是从0开始最大值,所以转换到屏幕要缩小一半
-            //  为什么位置要 + 1.0 ？
-            //      因为绘制的初始地方在 屏幕2D的(0, 0)开始绘制 所以可以理解为 3D模型要整体位移最大距离的一半(因为屏幕缩小了一半, 相应位移最大距离的一半即可)
-
-            screen_coords[j] = Vec3f((world_coords.x + 1.0) * width / 2.0, (world_coords.y + 1.0) * height / 2.0, 1.0);
-        }
-        // 任意颜色
-        triangle(screen_coords, image, TGA_Color(rand() % 255, rand() % 255, rand() % 255, 255));
-
-
-    }
+    lessons_6(model, image, width, height);
     */
 
     /*
     //  7. 光栅化模型的过程 使用Z缓冲和不使用
-    // 定义一个灯光
-    Vec3f light_dir(0, 0, -1);
-
-    float *zbuffer = new float[width * height];
-    for (int i = width * height; i--; zbuffer[i] = -std::numeric_limits<float>::max());
-
-    for (int i = 0; i < model->nfaces(); i++)
-    {
-        std::vector<int> face = model->face(i);
-        Vec3f screen_coords[3];
-        Vec3f world_coords[3];
-        for (int j = 0; j < 3; j++)
-        {
-            Vec3f v = model->vert(face[j]);
-            // screen_coords[j] = Vec3f((v.x + 1.0) * width / 2.0, (v.y + 1.0) * height / 2.0, 1.0);
-            screen_coords[j] = world2screen(v);
-            world_coords[j] = v;
-        }
-
-        // 计算出面的法线
-        Vec3f n = cross(world_coords[2] - world_coords[0], world_coords[1] - world_coords[0]);
-        n.normalize();
-
-        // 计算灯光强度
-        float intensity = n * light_dir;
-
-        // 光栅化
-        if (intensity > 0)
-        {
-            // 没有Z缓冲
-            // triangle(screen_coords, image, TGA_Color(intensity * 255, intensity * 255, intensity * 255, 255));
-
-            // 使用Z缓冲
-            int w = width;
-            triangle(w, screen_coords, zbuffer, image, TGA_Color(intensity * 255, intensity * 255, intensity * 255, 255));
-        }
-    }
-
-    delete zbuffer;
+    lessons_7(model, image, width, height);
     */
 
     /*
@@ -363,66 +279,61 @@ int main(int argc, char **argv)
 
     */
 
-    
-    // 9.
-    zbuffer = new int[width*height];
-    for (int i=0; i<width*height; i++) {
-        zbuffer[i] = std::numeric_limits<int>::min();
-    }
+    // // 9.
+    // zbuffer = new int[width*height];
+    // for (int i=0; i<width*height; i++) {
+    //     zbuffer[i] = std::numeric_limits<int>::min();
+    // }
 
-    { // draw the model
-        Matrix ModelView  = lookat(eye, center, Vec3f(0,1,0));
-        Matrix Projection = Matrix::identity(4);
-        Matrix ViewPort   = viewport(width/8, height/8, width*3/4, height*3/4);
-        Projection[3][2] = -1.f/(eye-center).norm();
+    // // draw the model
+    // Matrix ModelView  = lookat(eye, center, Vec3f(0,1,0));
+    // Matrix Projection = Matrix::identity(4);
+    // Matrix ViewPort   = viewport(width/8, height/8, width*3/4, height*3/4);
+    // Projection[3][2] = -1.f/(eye-center).norm();
 
-        std::cerr << ModelView << std::endl;
-        std::cerr << Projection << std::endl;
-        std::cerr << ViewPort << std::endl;
-        Matrix z = (ViewPort*Projection*ModelView);
-        std::cerr << z << std::endl;
+    // std::cerr << ModelView << std::endl;
+    // std::cerr << Projection << std::endl;
+    // std::cerr << ViewPort << std::endl;
+    // Matrix z = (ViewPort*Projection*ModelView);
+    // std::cerr << z << std::endl;
 
-        TGA_Image image(width, height, TGA_Image::RGB);
-        for (int i=0; i<model->nfaces(); i++) {
-            std::vector<int> face = model->face(i);
-            Vec3i screen_coords[3];
-            Vec3f world_coords[3];
-            float intensity[3];
-            for (int j=0; j<3; j++) {
-                Vec3f v = model->vert(face[j]);
-                screen_coords[j] =  Vec3f(ViewPort*Projection*ModelView*Matrix(v));
-                world_coords[j]  = v;
-                intensity[j] = model->norm(i, j)*light_dir;
-            }
-            triangle(width, height,  screen_coords[0], screen_coords[1], screen_coords[2], intensity[0], intensity[1], intensity[2], image, zbuffer);
-        }
-        image.flip_vertically(); // i want to have the origin at the left bottom corner of the image
-        string image_path = output_images_path + "output.tga";
-        image.write_tga_file(image_path.c_str());
-    }
+    // TGA_Image image(width, height, TGA_Image::RGB);
+    // for (int i=0; i<model->nfaces(); i++) {
+    //     std::vector<int> face = model->face(i);
+    //     Vec3i screen_coords[3];
+    //     Vec3f world_coords[3];
+    //     float intensity[3];
+    //     for (int j=0; j<3; j++) {
+    //         Vec3f v = model->vert(face[j]);
+    //         screen_coords[j] =  Vec3f(ViewPort*Projection*ModelView*Matrix(v));
+    //         world_coords[j]  = v;
+    //         intensity[j] = model->norm(i, j)*light_dir;
+    //     }
+    //     triangle(width, height,  screen_coords[0], screen_coords[1], screen_coords[2], intensity[0], intensity[1], intensity[2], image, zbuffer);
+    // }
 
-    { // dump z-buffer (debugging purposes only)
-        TGA_Image zbimage(width, height, TGA_Image::GRAYSCALE);
-        for (int i=0; i<width; i++) {
-            for (int j=0; j<height; j++) {
-                zbimage.set(i, j, TGA_Color(zbuffer[i+j*width]));
-            }
-        }
-        zbimage.flip_vertically(); // i want to have the origin at the left bottom corner of the image
-        string image_path = output_images_path + "zbuffer.tga";
-        zbimage.write_tga_file(image_path.c_str());
-    }
+    // { // dump z-buffer (debugging purposes only)
+    //     TGA_Image zbimage(width, height, TGA_Image::GRAYSCALE);
+    //     for (int i=0; i<width; i++) {
+    //         for (int j=0; j<height; j++) {
+    //             zbimage.set(i, j, TGA_Color(zbuffer[i+j*width]));
+    //         }
+    //     }
+    //     zbimage.flip_vertically(); // i want to have the origin at the left bottom corner of the image
+    //     string image_path = output_images_path + "zbuffer.tga";
+    //     zbimage.write_tga_file(image_path.c_str());
+    // }
 
     // 清理内存
     delete model;
-    delete [] zbuffer;
+    delete[] zbuffer;
 
-    // // 设置垂直翻转
-    // image.flip_vertically();
+    // 设置垂直翻转
+    image.flip_vertically();
 
-    // // 把图片数据写入到tgaw文件
-    // string image_path = output_images_path + "render.tga";
-    // image.write_tga_file(image_path.c_str());
+    // 把图片数据写入到tgaw文件
+    string image_path = output_images_path + "render.tga";
+    image.write_tga_file(image_path.c_str());
 
     return 0;
 }

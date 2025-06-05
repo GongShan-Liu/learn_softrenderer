@@ -1,3 +1,0 @@
-D:/ScriptPro/Script_2025/learn_softrenderer/build/CMakeFiles/learn_softrenderer.dir
-D:/ScriptPro/Script_2025/learn_softrenderer/build/CMakeFiles/ALL_BUILD.dir
-D:/ScriptPro/Script_2025/learn_softrenderer/build/CMakeFiles/ZERO_CHECK.dir
