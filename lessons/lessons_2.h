@@ -24,4 +24,4 @@ void lessons_6(Model *model, TGA_Image &image, int width, int height);
 /* 光栅化模型的过程可使用或不用Z缓冲 */
 void lessons_7(Model *model, TGA_Image &image, int width, int height);
 
-#endif // __LESSONS_H__
+#endif // __LESSONS_2_H__
