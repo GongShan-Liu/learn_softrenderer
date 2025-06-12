@@ -33,7 +33,6 @@ string get_parent_path(string &path, const char *_ptr = "\\")
 
 int main(int argc, char **argv)
 {
-    std::cout << "hello world" << std::endl;
     // exe文件路径
     // std::cout << argv[0] << std::endl;
 
@@ -63,13 +62,15 @@ int main(int argc, char **argv)
             5. 重心坐标法绘制三角形
             6. 绘制模型的三角面
             7. 光栅化模型
+            8. 用物体的变换来理解透视投影的原理
+            9. 绘制带相机视角和灯光的模型
     */
 
-    /*
+    
     // 1. 绘制像素点
     // 设置 像素位置 中心的颜色为红色
     // lessons_1(image, width / 2, height / 2);
-    */
+    
 
     /*
     // 2. 绘制直线
@@ -102,17 +103,20 @@ int main(int argc, char **argv)
     */
 
     /*
-    //  7. 光栅化模型的过程 使用Z缓冲和不使用
+    // 7. 光栅化模型的过程 使用Z缓冲和不使用
     lessons_7(model, image, width, height);
     */
 
     /*
-    // 8. 下面代码用以测试物体的变换来理解透视投影
+    // 8. 用物体的变换来理解透视投影的原理
     lessons_8(objs_path, image, width, height);
     */
 
-    // 9.
+    
+    // 9. 绘制带相机视角和灯光的模型
     lessons_9(model, image, width, height, output_images_path);
+    
+    
 
     // 清理内存
     delete model;

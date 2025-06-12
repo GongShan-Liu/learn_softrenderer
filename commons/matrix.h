@@ -2,8 +2,9 @@
 #define __MATRIX_H__
 
 #include <cmath>
-#include <iostream>
 #include <vector>
+#include <cassert>
+#include <iostream>
 
 class Matrix;
 
