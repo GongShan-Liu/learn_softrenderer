@@ -14,8 +14,9 @@
   https://github.com/ssloy/tinyrenderer
 
   其文档教程部分在：
-    https://github.com/ssloy/tinyrenderer/wiki
-    https://haqr.eu/tinyrenderer/
+    - https://github.com/ssloy/tinyrenderer/wiki
+  
+    - https://haqr.eu/tinyrenderer/
 
 ## 备注
 - 代码的目的是记录学习笔记与知识，分析图形基础知识和算法，掌握和了解其原理
