@@ -112,8 +112,7 @@ int main(int argc, char **argv)
     // 8. 用物体的变换来理解透视投影的原理
     lessons_8(objs_path, image, width, height);
     */
-
-<<<<<<< HEAD
+   
     /*
     // 9. 绘制带相机视角和灯光的模型
     lessons_9(model, image, width, height, output_images_path);
@@ -121,13 +120,6 @@ int main(int argc, char **argv)
 
     // 10. 
     lessons_10(model, image, width, height);
-=======
-    
-    // 9. 绘制带相机视角和灯光的模型
-    lessons_9(model, image, width, height, output_images_path);
-    
->>>>>>> c3f9866c5bce69dc7de63dc8665f54e266127986
-    
 
     // 清理内存
     delete model;

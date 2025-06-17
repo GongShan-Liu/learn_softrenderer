@@ -5,7 +5,6 @@
 #include <vector>
 #include <cassert>
 #include <iostream>
-<<<<<<< HEAD
 
 // class Matrix;
 
@@ -80,8 +79,6 @@
 
 
 template<size_t DimCols,size_t DimRows,typename T> class mat;
-=======
->>>>>>> c3f9866c5bce69dc7de63dc8665f54e266127986
 
 template <size_t DIM, typename T> struct vec {
     vec() { for (size_t i=DIM; i--; data_[i] = T()); }

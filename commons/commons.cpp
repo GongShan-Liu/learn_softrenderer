@@ -24,11 +24,7 @@ Vec3f m2v(Matrix m)
 // 从2D转3D
 Matrix v2m(Vec3f v)
 {
-<<<<<<< HEAD
     Matrix m = Matrix::identity();
-=======
-    Matrix m = Matrix::identity(4);
->>>>>>> c3f9866c5bce69dc7de63dc8665f54e266127986
     m[0][0] = v.x;
     m[1][0] = v.y;
     m[2][0] = v.z;
@@ -85,11 +81,7 @@ Matrix translation(Vec3f v)
 /* 旋转矩阵(x) */
 Matrix rotation_x(float cos_angle, float sin_angle)
 {
-<<<<<<< HEAD
     Matrix R = Matrix::identity();
-=======
-    Matrix R = Matrix::identity(4);
->>>>>>> c3f9866c5bce69dc7de63dc8665f54e266127986
     R[1][1] = R[2][2] = cos_angle;
     R[1][2] = -sin_angle;
     R[2][1] = sin_angle;
@@ -99,11 +91,7 @@ Matrix rotation_x(float cos_angle, float sin_angle)
 /* 旋转矩阵(y) */
 Matrix rotation_y(float cos_angle, float sin_angle)
 {
-<<<<<<< HEAD
     Matrix R = Matrix::identity();
-=======
-    Matrix R = Matrix::identity(4);
->>>>>>> c3f9866c5bce69dc7de63dc8665f54e266127986
     R[0][0] = R[2][2] = cos_angle;
     R[0][2] = sin_angle;
     R[2][0] = -sin_angle;
@@ -113,11 +101,8 @@ Matrix rotation_y(float cos_angle, float sin_angle)
 /* 旋转矩阵(z) */
 Matrix rotation_z(float cos_angle, float sin_angle)
 {
-<<<<<<< HEAD
     Matrix R = Matrix::identity();
-=======
-    Matrix R = Matrix::identity(4);
->>>>>>> c3f9866c5bce69dc7de63dc8665f54e266127986
+
     R[0][0] = R[1][1] = cos_angle;
     R[0][1] = -sin_angle;
     R[1][0] = sin_angle;
@@ -130,12 +115,8 @@ Matrix lookat(Vec3f eye, Vec3f center, Vec3f up)
     Vec3f z = (eye - center).normalize();
     Vec3f x = (up ^ z).normalize();
     Vec3f y = (z ^ x).normalize();
-<<<<<<< HEAD
-    Matrix res = Matrix::identity();
-=======
-    Matrix res = Matrix::identity(4);
->>>>>>> c3f9866c5bce69dc7de63dc8665f54e266127986
 
+    Matrix res = Matrix::identity();
     for (int i = 0; i < 3; i++)
     {
         res[0][i] = x[i];
@@ -149,11 +130,7 @@ Matrix lookat(Vec3f eye, Vec3f center, Vec3f up)
 
 Matrix projection(float coeff)
 {
-<<<<<<< HEAD
     Matrix Projection = Matrix::identity();
-=======
-    Matrix Projection = Matrix::identity(4);
->>>>>>> c3f9866c5bce69dc7de63dc8665f54e266127986
     Projection[3][2] = coeff;
     return Projection;
 }

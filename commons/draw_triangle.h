@@ -6,7 +6,6 @@
 #include "commons/tga_image.h"
 #include "commons/our_gl.h"
 
-
 // 计算点的重心坐标
 Vec3f barycentric(Vec3f A, Vec3f B, Vec3f C, Vec3f P);
 
@@ -24,10 +23,7 @@ void triangle(int &width, Vec3f *pts, float *zbuffer, TGA_Image &image, TGA_Colo
 // 使用传统扫描法绘制三角形和z缓存、灯光
 void triangle(const int width, const int height, Vec3i t0, Vec3i t1, Vec3i t2, float ity0, float ity1, float ity2, TGA_Image &image, int *zbuffer);
 
-<<<<<<< HEAD
-// 
+//
 void triangle(Vec4f *pts, IShader &shader, TGA_Image &image, TGA_Image &zbuffer);
-=======
->>>>>>> c3f9866c5bce69dc7de63dc8665f54e266127986
 
 #endif
