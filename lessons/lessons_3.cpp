@@ -62,7 +62,11 @@ void lessons_8(string &objs_path, TGA_Image &image, int width, int height)
 
                 /*
                 // 2. 剪切
+<<<<<<< HEAD
                 Matrix T = Matrix::identity();
+=======
+                Matrix T = Matrix::identity(4);
+>>>>>>> c3f9866c5bce69dc7de63dc8665f54e266127986
                 T[0][1] = 0.333;
                 */
 
@@ -107,7 +111,11 @@ void lessons_9(Model *model, TGA_Image &image, int width, int height, string &ou
     Matrix ModelView = lookat(eye, center, Vec3f(0, 1, 0));
 
     // 投影矩阵
+<<<<<<< HEAD
     Matrix Projection = Matrix::identity();
+=======
+    Matrix Projection = Matrix::identity(4);
+>>>>>>> c3f9866c5bce69dc7de63dc8665f54e266127986
     Projection[3][2] = -1.f / (eye - center).norm(); // w透视
 
     // 视口矩阵

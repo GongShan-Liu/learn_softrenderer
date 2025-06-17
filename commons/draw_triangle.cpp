@@ -252,7 +252,11 @@ void triangle(int &width, Vec3f *pts, float *zbuffer, TGA_Image &image, TGA_Colo
     }
 }
 
+<<<<<<< HEAD
 //
+=======
+// 
+>>>>>>> c3f9866c5bce69dc7de63dc8665f54e266127986
 void triangle(const int width, const int height, Vec3i t0, Vec3i t1, Vec3i t2, float ity0, float ity1, float ity2, TGA_Image &image, int *zbuffer)
 {
     // 忽略点重叠的三角面
@@ -288,6 +292,7 @@ void triangle(const int width, const int height, Vec3i t0, Vec3i t1, Vec3i t2, f
         int segment_height = second_half ? t2.y - t1.y : t1.y - t0.y;
 
         // 计算y轴由高到低的比率
+<<<<<<< HEAD
         float alpha = (float)i / total_height;                                      // 从下到上递增值的系数
         float beta = (float)(i - (second_half ? t1.y - t0.y : 0)) / segment_height; // 上或下的三角面从下到上递增值的系数
 
@@ -295,6 +300,15 @@ void triangle(const int width, const int height, Vec3i t0, Vec3i t1, Vec3i t2, f
         Vec3i A = t0 + Vec3f(t2 - t0) * alpha;
         Vec3i B = second_half ? t1 + Vec3f(t2 - t1) * beta : t0 + Vec3f(t1 - t0) * beta;
 
+=======
+        float alpha = (float)i / total_height; // 从下到上递增值的系数
+        float beta = (float)(i - (second_half ? t1.y - t0.y : 0)) / segment_height; // 上或下的三角面从下到上递增值的系数
+        
+        // 获得三角形在x轴绘制的初始点A和结束点B
+        Vec3i A = t0 + Vec3f(t2 - t0) * alpha;
+        Vec3i B = second_half ? t1 + Vec3f(t2 - t1) * beta : t0 + Vec3f(t1 - t0) * beta;
+        
+>>>>>>> c3f9866c5bce69dc7de63dc8665f54e266127986
         // 获得三角形在x轴绘制的初始点和结束点的灯光强度
         float ityA = ity0 + (ity2 - ity0) * alpha;
         float ityB = second_half ? ity1 + (ity2 - ity1) * beta : ity0 + (ity1 - ity0) * beta;
@@ -316,10 +330,17 @@ void triangle(const int width, const int height, Vec3i t0, Vec3i t1, Vec3i t2, f
 
             // 像素点的灯光强度
             float ityP = ityA + (ityB - ityA) * phi;
+<<<<<<< HEAD
 
             // 像素点的索引
             int idx = P.x + P.y * width;
 
+=======
+            
+            // 像素点的索引
+            int idx = P.x + P.y * width;
+            
+>>>>>>> c3f9866c5bce69dc7de63dc8665f54e266127986
             // 如果像素点位置不在输出画面的大小内就跳过
             if (P.x >= width || P.y >= height || P.x < 0 || P.y < 0)
                 continue;
@@ -329,6 +350,7 @@ void triangle(const int width, const int height, Vec3i t0, Vec3i t1, Vec3i t2, f
             {
                 zbuffer[idx] = P.z;
                 image.set(P.x, P.y, TGA_Color(255, 255, 255) * ityP);
+<<<<<<< HEAD
             }
         }
     }
@@ -363,6 +385,8 @@ void triangle(Vec4f *pts, IShader &shader, TGA_Image &image, TGA_Image &zbuffer)
             {
                 zbuffer.set(P.x, P.y, TGA_Color(frag_depth));
                 image.set(P.x, P.y, color);
+=======
+>>>>>>> c3f9866c5bce69dc7de63dc8665f54e266127986
             }
         }
     }

@@ -15,9 +15,17 @@
 
   其文档教程部分在：
     - https://github.com/ssloy/tinyrenderer/wiki
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> c3f9866c5bce69dc7de63dc8665f54e266127986
     - https://haqr.eu/tinyrenderer/
 
 ## 备注
 - 代码的目的是记录学习笔记与知识，分析图形基础知识和算法，掌握和了解其原理
+<<<<<<< HEAD
 - 编译器：C++17，可选择 vs2019x64
+=======
+- 编译器：C++17，可选择 vs2019x64
+>>>>>>> c3f9866c5bce69dc7de63dc8665f54e266127986
