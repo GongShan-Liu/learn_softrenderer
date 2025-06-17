@@ -52,6 +52,8 @@ struct TGA_Color {
         }
     }
 
+    unsigned char& operator[](const int i) { return bgra[i]; }
+
     TGA_Color operator *(float intensity) const {
         TGA_Color res = *this;
         intensity = (intensity>1.f?1.f:(intensity<0.f?0.f:intensity));

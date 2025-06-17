@@ -21,7 +21,7 @@
         该方法除了性能消耗较大同时也取决于 t的每次步长常数的选择，如果取它为0.1，那么如果点A(13, 20) 点B(80, 40)就出现连接不上的点
 ***/
 
-// void draw_line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color)
+// void draw_line(int x0, int y0, int x1, int y1, TGA_Image &image, TGA_Color color)
 // {
 //     for (float t = 0; t < 1.0; t += 0.01)
 //     {
@@ -44,7 +44,7 @@
             2. 如果|x1 - y1| >= |x0 - y0|, 那么就会出现连接不上的点，正常是所有点都连接成直线
 ***/
 
-// void draw_line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color)
+// void draw_line(int x0, int y0, int x1, int y1, TGA_Image &image, TGA_Color color)
 // {
 //     for (int x = x0; x <= x1; x++)
 //     {
@@ -69,7 +69,7 @@
             问题：如果绘制大量的line，那么该方法性能在 计算t和y值时，就会消耗较大 (因为存在浮点乘除的迭代计算)，所以可进一步优化
 ***/
 
-// void draw_line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color)
+// void draw_line(int x0, int y0, int x1, int y1, TGA_Image &image, TGA_Color color)
 // {
 //     bool steep = false;
 
@@ -108,7 +108,7 @@
         好处是把计算t与y的浮点乘除优化了, 那么还可以进一步的优化
 ***/
 
-// void draw_line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color)
+// void draw_line(int x0, int y0, int x1, int y1, TGA_Image &image, TGA_Color color)
 // {
 //     bool steep = false;
 //     if (std::abs(x0 - x1) < std::abs(y0 - y1))

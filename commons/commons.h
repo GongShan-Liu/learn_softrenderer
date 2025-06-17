@@ -35,4 +35,6 @@ Matrix rotation_y(float cosangle, float sinangle);
 Matrix rotation_z(float cosangle, float sinangle);
 
 Matrix lookat(Vec3f eye, Vec3f center, Vec3f up);
+
+Matrix projection(float coeff);
 #endif //__MATRIX_H__
