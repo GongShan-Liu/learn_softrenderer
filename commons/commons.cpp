@@ -128,6 +128,7 @@ Matrix lookat(Vec3f eye, Vec3f center, Vec3f up)
     return res;
 }
 
+/* 投影 (透视) 矩阵*/
 Matrix projection(float coeff)
 {
     Matrix Projection = Matrix::identity();

@@ -16,16 +16,24 @@
 
 Vec4f GouraudShader::vertex(int iface, int nthvert, Vec3f light_dir)
 {
-    Vec4f gl_Vertex = embed<4>(model->vert(iface, nthvert));                               // read the vertex from .obj file
-    gl_Vertex = Viewport * Projection * ModelView * gl_Vertex;                             // transform it to screen coordinates
-    varying_intensity[nthvert] = std::max(0.f, model->normal(iface, nthvert) * light_dir); // get diffuse lighting intensity
+    // 获取模型面的点在世界的位置向量
+    Vec4f gl_Vertex = embed<4>(model->vert(iface, nthvert));
+
+    // 计算点的视口向量 = 视口矩阵 * 投影矩阵 * 相机矩阵 * 点世界位置向量
+    gl_Vertex = Viewport * Projection * ModelView * gl_Vertex;
+
+    // 计算 漫反射灯光强度 (面的点位置向量 点乘 灯光向量)
+    varying_intensity[nthvert] = std::max(0.f, model->normal(iface, nthvert) * light_dir);
+
     return gl_Vertex;
 }
 
 bool GouraudShader::fragment(Vec3f bar, TGA_Color &color)
 {
+    // 计算 像素点的强度值 = 灯光强度 * 像素点重心坐标
+    float intensity = varying_intensity * bar;
 
-    float intensity = varying_intensity * bar;    // interpolate intensity for the current pixel
+    // 计算 像素点的颜色强度
     color = TGA_Color(255, 255, 255) * intensity; // well duh
     return false;                                 // no, we do not discard this pixel
 
@@ -55,21 +63,33 @@ void lessons_10(Model *model, TGA_Image &image, int width, int height)
     Vec3f center(0, 0, 0);
     Vec3f up(0, 1, 0);
 
-    Matrix lookat_matrix = lookat(eye, center, up);
+    // 计算视口矩阵
     Matrix viewport_matrix = viewport(width / 8, height / 8, width * 3 / 4, height * 3 / 4, depth);
+
+    // 计算投影矩阵
     Matrix projection_matrix = projection(-1.f / (eye - center).norm());
+
+    // 计算相机矩阵
+    Matrix lookat_matrix = lookat(eye, center, up);
+
     light_dir.normalize();
 
     TGA_Image zbuffer(width, height, TGA_Image::GRAYSCALE);
-    GouraudShader shader(model, lookat_matrix, viewport_matrix, projection_matrix);
 
+    // 设置模型的材质
+    GouraudShader shader(model, viewport_matrix, projection_matrix, lookat_matrix);
+
+    // 光栅化
     for (int i = 0; i < model->nfaces(); i++)
     {
         Vec4f screen_coords[3];
         for (int j = 0; j < 3; j++)
-        {
+        {   
+            // 计算点的视口向量
             screen_coords[j] = shader.vertex(i, j, light_dir);
         }
+
+        // 面进行光栅化
         triangle(screen_coords, shader, image, zbuffer);
     }
 }

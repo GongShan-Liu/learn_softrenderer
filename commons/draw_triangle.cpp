@@ -333,10 +333,13 @@ void triangle(const int width, const int height, Vec3i t0, Vec3i t1, Vec3i t2, f
     }
 }
 
+// 重心坐标法绘制三角形
 void triangle(Vec4f *pts, IShader &shader, TGA_Image &image, TGA_Image &zbuffer)
 {
+    // 获取三角形的box边界
     Vec2f bboxmin(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
     Vec2f bboxmax(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
+
     for (int i = 0; i < 3; i++)
     {
         for (int j = 0; j < 2; j++)
@@ -345,19 +348,38 @@ void triangle(Vec4f *pts, IShader &shader, TGA_Image &image, TGA_Image &zbuffer)
             bboxmax[j] = std::max(bboxmax[j], pts[i][j] / pts[i][3]);
         }
     }
+
     Vec2i P;
     TGA_Color color;
+
+    // 扫描box内的全部点
     for (P.x = bboxmin.x; P.x <= bboxmax.x; P.x++)
     {
         for (P.y = bboxmin.y; P.y <= bboxmax.y; P.y++)
         {
+            // 计算像素点的重心坐标
             Vec3f c = barycentric(proj<2>(pts[0] / pts[0][3]), proj<2>(pts[1] / pts[1][3]), proj<2>(pts[2] / pts[2][3]), proj<2>(P));
+            
+            // 通过三角面的顶点空间的Z值与像素点P的重心坐标的点积 计算像素点Z缓冲值
+            // 深度值 Z缓存 = 面三点的Z坐标向量 点乘 重心坐标 c (重心坐标插值算法)
+            // Z值判断像素点是否被渲染
             float z = pts[0][2] * c.x + pts[1][2] * c.y + pts[2][2] * c.z;
+
+            // 通过三角面的顶点空间的W值与P点的重心坐标的点积 计算W透视校正值
+            // 深度值 W透视校正 = 面三点的W坐标向量 点乘 重心坐标 c (透视校正插值算法)
             float w = pts[0][3] * c.x + pts[1][3] * c.y + pts[2][3] * c.z;
+
+            //  将插值后的深度值 Z 进行透视校正，并映射到 [0, 255] 的整数范围
             int frag_depth = std::max(0, std::min(255, int(z / w + .5)));
+            
+            // 判断像素点是否需要渲染
             if (c.x < 0 || c.y < 0 || c.z < 0 || zbuffer.get(P.x, P.y)[0] > frag_depth)
                 continue;
+            
+            // 计算像素点的绘制颜色
             bool discard = shader.fragment(c, color);
+
+            // 像素点需要重新绘制
             if (!discard)
             {
                 zbuffer.set(P.x, P.y, TGA_Color(frag_depth));

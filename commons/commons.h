@@ -34,7 +34,10 @@ Matrix rotation_y(float cosangle, float sinangle);
 
 Matrix rotation_z(float cosangle, float sinangle);
 
+/* 相机矩阵 */
 Matrix lookat(Vec3f eye, Vec3f center, Vec3f up);
 
+/* 投影 (透视) 矩阵*/
 Matrix projection(float coeff);
+
 #endif //__MATRIX_H__
