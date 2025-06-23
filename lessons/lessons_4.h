@@ -16,7 +16,7 @@ struct GouraudShader : public IShader
 {
     Model *model;
     Vec3f varying_intensity;
-    mat<2,3,float> varying_uv;
+    mat<2, 3, float> varying_uv;
 
     Matrix Viewport;
     Matrix Projection;

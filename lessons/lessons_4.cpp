@@ -16,10 +16,10 @@
 
 Vec4f GouraudShader::vertex(int iface, int nthvert, Vec3f light_dir)
 {
-    //
+    // 面的3个顶点所对应uv空间的位置(2x3的矩阵: 2行代表u轴和v轴; 3个顶点的u和v坐标)
     varying_uv.set_col(nthvert, model->uv(iface, nthvert));
 
-    // 计算 漫反射灯光强度 (面的点位置向量 点乘 灯光向量)
+    // 计算 漫反射灯光强度插值 (面的点位置向量 点乘 灯光向量)
     varying_intensity[nthvert] = std::max(0.f, model->normal(iface, nthvert) * light_dir);
 
     // 获取模型面的点在世界的位置向量
@@ -33,13 +33,14 @@ Vec4f GouraudShader::vertex(int iface, int nthvert, Vec3f light_dir)
 
 bool GouraudShader::fragment(Vec3f bar, TGA_Color &color)
 {
-    // 计算 像素点的强度值 = 灯光强度 * 像素点重心坐标
+    // 计算 像素点的强度值 = 灯光强度的插值 * 像素点重心坐标
     float intensity = varying_intensity * bar;
     /*
     // 计算一般的 白光漫反射
     // 计算 像素点的颜色强度
-    color = TGA_Color(255, 255, 255) * intensity; // well duh
-    return false; */                                // no, we do not discard this pixel
+    color = TGA_Color(255, 255, 255) * intensity;
+    return false;
+    */
 
     /*
     // 计算橙光按强度依次分层
@@ -59,9 +60,14 @@ bool GouraudShader::fragment(Vec3f bar, TGA_Color &color)
     return false;
     */
 
-    Vec2f uv = varying_uv * bar;            // interpolate uv for the current pixel
-    color = model->diffuse(uv) * intensity; // well duh
-    return false;                           // no, we do not discard this pixel
+    // 像素点的纹理坐标 = 面的uv坐标 点乘 重心坐标
+    Vec2f uv = varying_uv * bar;
+
+    // model->diffuse(uv) = uv纹理坐标对应的漫反射贴图的像素颜色
+    // 漫反射贴图的像素点颜色 乘以 像素点的强度值
+    color = model->diffuse(uv) * intensity;
+
+    return false;
 }
 
 void lessons_10(Model *model, TGA_Image &image, int width, int height)

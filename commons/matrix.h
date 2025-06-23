@@ -225,6 +225,7 @@ public:
         return ret;
     }
 
+    // set column
     void set_col(size_t idx, vec<DimRows,T> v) {
         assert(idx<DimCols);
         for (size_t i=DimRows; i--; rows[i][idx]=v[i]);
