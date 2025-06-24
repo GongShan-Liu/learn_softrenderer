@@ -36,7 +36,7 @@ bool GouraudShader::fragment(Vec3f bar, TGA_Color &color)
     // 计算 像素点的强度值 = 灯光强度的插值 * 像素点重心坐标
     float intensity = varying_intensity * bar;
     /*
-    // 计算一般的 白光漫反射
+    // 渲染效果 = 白色 * 灯光强度
     // 计算 像素点的颜色强度
     color = TGA_Color(255, 255, 255) * intensity;
     return false;
@@ -63,9 +63,30 @@ bool GouraudShader::fragment(Vec3f bar, TGA_Color &color)
     // 像素点的纹理坐标 = 面的uv坐标 点乘 重心坐标
     Vec2f uv = varying_uv * bar;
 
+    /*
+    // 渲染效果 = 漫反射贴图 * 灯光强度
+
     // model->diffuse(uv) = uv纹理坐标对应的漫反射贴图的像素颜色
     // 漫反射贴图的像素点颜色 乘以 像素点的强度值
     color = model->diffuse(uv) * intensity;
+    */
+
+    
+    // 渲染效果 = 漫反射贴图 * 法线贴图 * 灯光强度
+
+    // embed<4>(model->normal(uv))).normalize() 3D法线向量转为4D齐次坐标
+    // 模型变换后的法线也需要变换 n 法线变换的单位向量 = uniform_MIT * 4D法线向量
+    Vec3f n = proj<3>(uniform_MIT * embed<4>(model->normal(uv))).normalize();
+
+    // 灯光变换后的单位向量
+    Vec3f l = proj<3>(uniform_M * embed<4>(light_dir)).normalize();
+
+    // 像素点的法线强度 = 法线 * 灯光
+    intensity = std::max(0.f, n * l);
+
+    // 像素点颜色 乘以 法线强度
+    color = model->diffuse(uv) * intensity;
+    
 
     return false;
 }
@@ -92,7 +113,7 @@ void lessons_10(Model *model, TGA_Image &image, int width, int height)
     TGA_Image zbuffer(width, height, TGA_Image::GRAYSCALE);
 
     // 设置模型的材质
-    GouraudShader shader(model, viewport_matrix, projection_matrix, lookat_matrix);
+    GouraudShader shader(model, light_dir, viewport_matrix, projection_matrix, lookat_matrix);
 
     // 光栅化
     for (int i = 0; i < model->nfaces(); i++)

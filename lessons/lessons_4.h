@@ -15,20 +15,28 @@
 struct GouraudShader : public IShader
 {
     Model *model;
+    Vec3f light_dir;
     Vec3f varying_intensity;
     mat<2, 3, float> varying_uv;
+
+    Matrix uniform_M;   //  透视矩阵 * 相机矩阵
+    Matrix uniform_MIT; // 透视矩阵 * 相机矩阵的逆转置矩阵
 
     Matrix Viewport;
     Matrix Projection;
     Matrix ModelView;
     GouraudShader(Model *inModel,
+                  Vec3f inLight_dir,
                   Matrix inViewport,
                   Matrix inProjection,
                   Matrix inModelView) : model(inModel),
+                                        light_dir(inLight_dir),
                                         Viewport(inViewport),
                                         Projection(inProjection),
                                         ModelView(inModelView)
     {
+        uniform_M = Projection * ModelView;
+        uniform_MIT = uniform_M.invert_transpose();
     }
 
     virtual Vec4f vertex(int iface, int nthvert, Vec3f light_dir);
