@@ -35,11 +35,11 @@ bool GouraudShader::fragment(Vec3f bar, TGA_Color &color)
 {
     // 计算 像素点的强度值 = 灯光强度的插值 * 像素点重心坐标
     float intensity = varying_intensity * bar;
+
     /*
     // 渲染效果 = 白色 * 灯光强度
     // 计算 像素点的颜色强度
     color = TGA_Color(255, 255, 255) * intensity;
-    return false;
     */
 
     /*
@@ -57,7 +57,6 @@ bool GouraudShader::fragment(Vec3f bar, TGA_Color &color)
     else
         intensity = 0;
     color = TGA_Color(255, 155, 0) * intensity;
-    return false;
     */
 
     // 像素点的纹理坐标 = 面的uv坐标 点乘 重心坐标
@@ -71,22 +70,45 @@ bool GouraudShader::fragment(Vec3f bar, TGA_Color &color)
     color = model->diffuse(uv) * intensity;
     */
 
-    
+    /*
     // 渲染效果 = 漫反射贴图 * 法线贴图 * 灯光强度
 
-    // embed<4>(model->normal(uv))).normalize() 3D法线向量转为4D齐次坐标
-    // 模型变换后的法线也需要变换 n 法线变换的单位向量 = uniform_MIT * 4D法线向量
+    // embed<4>(model->normal(uv))).normalize(): 3D法线向量转为4D齐次坐标
+    // 模型变换后的法线也需要变换n 法线变换的单位向量 = uniform_MIT * 4D法线向量
     Vec3f n = proj<3>(uniform_MIT * embed<4>(model->normal(uv))).normalize();
 
     // 灯光变换后的单位向量
     Vec3f l = proj<3>(uniform_M * embed<4>(light_dir)).normalize();
 
     // 像素点的法线强度 = 法线 * 灯光
-    intensity = std::max(0.f, n * l);
+    intensity = std::max(0.0f, n * l);
 
     // 像素点颜色 乘以 法线强度
     color = model->diffuse(uv) * intensity;
-    
+    */
+
+    // 最终Phong材质效果
+    // 渲染效果 = 漫反射贴图 * 高光强度 (法线 * (法线 * 灯光强度 * 2) - 1)
+    Vec3f n = proj<3>(uniform_MIT * embed<4>(model->normal(uv))).normalize();
+    Vec3f l = proj<3>(uniform_M * embed<4>(light_dir)).normalize();
+
+    // 反射灯光
+    Vec3f r = (n * (n * l * 2.0f) - l).normalize();
+
+    // 高光强度 = 反射灯光的 n 次方(n是高光贴图像素点的强度) 
+    float spec = pow(std::max(r.z, 0.0f), model->specular(uv));
+
+    // 像素点的法线强度 = 法线 * 灯光
+    intensity = std::max(0.0f, n * l);
+
+    // 漫反射贴图
+    TGA_Color c = model->diffuse(uv);
+
+    // 像素点颜色 乘以 (法线强度 + 0.6 乘以 高光强度)
+    // 环境光系数：5，漫反射系数：1，镜面反射系数：0.6
+    color = c;
+    for (int i = 0; i < 3; i++)
+        color[i] = std::min<float>(5 + 1 * c[i] * (intensity + 0.6 * spec), 255);
 
     return false;
 }
