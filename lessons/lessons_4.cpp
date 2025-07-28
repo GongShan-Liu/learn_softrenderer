@@ -25,8 +25,12 @@ Vec4f GouraudShader::vertex(int iface, int nthvert, Vec3f light_dir)
     // 获取模型面的点在世界的位置向量
     Vec4f gl_Vertex = embed<4>(model->vert(iface, nthvert));
 
-    // 计算点的视口向量 = 视口矩阵 * 投影矩阵 * 相机矩阵 * 点世界位置向量
+    // 计算顶点的视口向量 = 视口矩阵 * 投影矩阵 * 相机矩阵 * 点世界位置向量
     gl_Vertex = Viewport * Projection * ModelView * gl_Vertex;
+
+    varying_nrm.set_col(nthvert, proj<3>((Projection * ModelView).invert_transpose() * embed<4>(model->normal(iface, nthvert), 0.f)));
+    varying_tri.set_col(nthvert, gl_Vertex);
+    ndc_tri.set_col(nthvert, proj<3>(gl_Vertex / gl_Vertex[3]));
 
     return gl_Vertex;
 }
@@ -87,15 +91,16 @@ bool GouraudShader::fragment(Vec3f bar, TGA_Color &color)
     color = model->diffuse(uv) * intensity;
     */
 
+    /*
     // 最终Phong材质效果
     // 渲染效果 = 漫反射贴图 * 高光强度 (法线 * (法线 * 灯光强度 * 2) - 1)
-    Vec3f n = proj<3>(uniform_MIT * embed<4>(model->normal(uv))).normalize();
+    Vec3f n = proj<3>(uniform_MIT * embed<4>(model->normal(uv))).normalize(); // 使用全局空间法线
     Vec3f l = proj<3>(uniform_M * embed<4>(light_dir)).normalize();
 
     // 反射灯光
     Vec3f r = (n * (n * l * 2.0f) - l).normalize();
 
-    // 高光强度 = 反射灯光的 n 次方(n是高光贴图像素点的强度) 
+    // 高光强度 = 反射灯光的 n 次方(n是高光贴图像素点的强度)
     float spec = pow(std::max(r.z, 0.0f), model->specular(uv));
 
     // 像素点的法线强度 = 法线 * 灯光
@@ -109,7 +114,36 @@ bool GouraudShader::fragment(Vec3f bar, TGA_Color &color)
     color = c;
     for (int i = 0; i < 3; i++)
         color[i] = std::min<float>(5 + 1 * c[i] * (intensity + 0.6 * spec), 255);
+    */
+    
+    // 使用切线空间法线
+    Vec3f bn = (varying_nrm * bar).normalize();
+    mat<3, 3, float> A;
+    A[0] = ndc_tri.col(1) - ndc_tri.col(0);
+    A[1] = ndc_tri.col(2) - ndc_tri.col(0);
+    A[2] = bn;
 
+    mat<3, 3, float> AI = A.invert();
+
+    Vec3f i = AI * Vec3f(varying_uv[0][1] - varying_uv[0][0], varying_uv[0][2] - varying_uv[0][0], 0);
+    Vec3f j = AI * Vec3f(varying_uv[1][1] - varying_uv[1][0], varying_uv[1][2] - varying_uv[1][0], 0);
+
+    mat<3, 3, float> B;
+    B.set_col(0, i.normalize());
+    B.set_col(1, j.normalize());
+    B.set_col(2, bn);
+
+    // 加载切线空间法线贴图
+    if (LoadNormalMapCount == 0){
+        model->set_normalmap("_nm_tangent.tga");
+        LoadNormalMapCount = 1;
+    }
+    
+    Vec3f n = (B * model->normal(uv)).normalize();
+
+    float diff = std::max(0.f, n * light_dir);
+    color = model->diffuse(uv) * diff;
+    
     return false;
 }
 

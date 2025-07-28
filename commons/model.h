@@ -15,6 +15,7 @@ private:
     TGA_Image diffusemap_;
     TGA_Image normalmap_;
     TGA_Image specularmap_;
+    const char *filename_;
     void load_texture(std::string filename, const char *suffix, TGA_Image &img);
 public:
     Model(const char *filename);
@@ -23,6 +24,7 @@ public:
     int nfaces();
     Vec3f normal(int iface, int nthvert);
     Vec3f normal(Vec2f uv);
+    void set_normalmap(const char *suffix);
     Vec3f vert(int i);
     Vec3f vert(int iface, int nthvert);
     Vec2f uv(int iface, int nthvert);

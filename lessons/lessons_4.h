@@ -19,12 +19,18 @@ struct GouraudShader : public IShader
     Vec3f varying_intensity;
     mat<2, 3, float> varying_uv;
 
+    mat<3,3,float> varying_nrm;
+    mat<4, 3, float> varying_tri;
+    mat<3, 3, float> ndc_tri;
+
     Matrix uniform_M;   //  透视矩阵 * 相机矩阵
     Matrix uniform_MIT; // 透视矩阵 * 相机矩阵的逆转置矩阵
 
     Matrix Viewport;
     Matrix Projection;
     Matrix ModelView;
+
+    short int LoadNormalMapCount;
     GouraudShader(Model *inModel,
                   Vec3f inLight_dir,
                   Matrix inViewport,
@@ -37,6 +43,7 @@ struct GouraudShader : public IShader
     {
         uniform_M = Projection * ModelView;
         uniform_MIT = uniform_M.invert_transpose();
+        LoadNormalMapCount = 0;
     }
 
     virtual Vec4f vertex(int iface, int nthvert, Vec3f light_dir);

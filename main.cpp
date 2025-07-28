@@ -121,6 +121,8 @@ int main(int argc, char **argv)
     // 10. shader的Phong材质效果
     lessons_10(model, image, width, height);
 
+    // 11. 
+
     // 清理内存
     delete model;
 

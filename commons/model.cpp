@@ -6,7 +6,7 @@
 
 #include "commons/model.h"
 
-Model::Model(const char *filename) : verts_(), faces_(), norms_(), uv_(), diffusemap_(), normalmap_(), specularmap_() {
+Model::Model(const char *filename) : verts_(), faces_(), norms_(), uv_(), diffusemap_(), normalmap_(), specularmap_(),filename_(filename) {
     std::ifstream in;
     in.open (filename, std::ifstream::in);
     if (in.fail()) return;
@@ -93,6 +93,11 @@ Vec3f Model::normal(Vec2f uvf) {
     for (int i=0; i<3; i++)
         res[2-i] = (float)c[i]/255.f*2.f - 1.f;
     return res;
+}
+
+void Model::set_normalmap(const char *suffix)
+{
+    load_texture(filename_, suffix, normalmap_);
 }
 
 Vec2f Model::uv(int iface, int nthvert) {
