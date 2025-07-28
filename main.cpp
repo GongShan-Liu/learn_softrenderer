@@ -65,6 +65,7 @@ int main(int argc, char **argv)
             7. 光栅化模型
             8. 用物体的变换来理解透视投影的原理
             9. 绘制带相机视角和灯光的模型
+            10. shader的Phong材质效果
     */
 
     

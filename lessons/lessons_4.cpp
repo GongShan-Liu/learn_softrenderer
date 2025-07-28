@@ -41,6 +41,7 @@ bool GouraudShader::fragment(Vec3f bar, TGA_Color &color)
     float intensity = varying_intensity * bar;
 
     /*
+    // shader课程1
     // 渲染效果 = 白色 * 灯光强度
     // 计算 像素点的颜色强度
     color = TGA_Color(255, 255, 255) * intensity;
@@ -67,6 +68,7 @@ bool GouraudShader::fragment(Vec3f bar, TGA_Color &color)
     Vec2f uv = varying_uv * bar;
 
     /*
+    // shader课程2
     // 渲染效果 = 漫反射贴图 * 灯光强度
 
     // model->diffuse(uv) = uv纹理坐标对应的漫反射贴图的像素颜色
@@ -74,7 +76,8 @@ bool GouraudShader::fragment(Vec3f bar, TGA_Color &color)
     color = model->diffuse(uv) * intensity;
     */
 
-    /*
+    /* 
+    // shader课程3
     // 渲染效果 = 漫反射贴图 * 法线贴图 * 灯光强度
 
     // embed<4>(model->normal(uv))).normalize(): 3D法线向量转为4D齐次坐标
@@ -92,6 +95,7 @@ bool GouraudShader::fragment(Vec3f bar, TGA_Color &color)
     */
 
     /*
+    // shader课程4
     // 最终Phong材质效果
     // 渲染效果 = 漫反射贴图 * 高光强度 (法线 * (法线 * 灯光强度 * 2) - 1)
     Vec3f n = proj<3>(uniform_MIT * embed<4>(model->normal(uv))).normalize(); // 使用全局空间法线
@@ -116,6 +120,8 @@ bool GouraudShader::fragment(Vec3f bar, TGA_Color &color)
         color[i] = std::min<float>(5 + 1 * c[i] * (intensity + 0.6 * spec), 255);
     */
     
+    
+    // shader课程4
     // 使用切线空间法线
     Vec3f bn = (varying_nrm * bar).normalize();
     mat<3, 3, float> A;
@@ -177,7 +183,7 @@ void lessons_10(Model *model, TGA_Image &image, int width, int height)
         Vec4f screen_coords[3];
         for (int j = 0; j < 3; j++)
         {
-            // 计算点的视口向量
+            // 计算顶点的视口向量
             screen_coords[j] = shader.vertex(i, j, light_dir);
         }
 
